@@ -8,18 +8,63 @@ const EditForm = ({apartment, setOpen}) => {
     const [rooms, setRooms] = useState(apartment.rooms)
     const [price, setPrice] = useState(apartment.price)
     const [description, setDescription] = useState(apartment.description)
+    const [nameErr, setNameErr] = useState('')
+    const [roomsErr, setRoomsErr] = useState('')
+    const [priceErr, setPriceErr] = useState('')
+    const [descriptionErr, setDescriptionErr] = useState(null)
+
+    const handleName = (e) => {
+        setName(e.target.value)
+        if (e.target.value.length === 0 || e.target.value.length > 99) {
+            setNameErr("Can't be empty. Max 99 symbols")
+        } else {
+            setNameErr(null)
+        }
+    }
+
+    const handleRooms = (e) => {
+        setRooms((v) => (e.target.validity.valid ? e.target.value : v))
+        if (parseInt(e.target.value) === 0 || !e.target.validity.valid || e.target.value.length === 0) {
+            setRoomsErr("Can't be zero or less")
+        } else {
+            setRoomsErr(null)
+        }
+    }
+
+    const handlePrice = (e) => {
+        setPrice((v) => (e.target.validity.valid ? e.target.value : v))
+        if (parseInt(e.target.value) === 0 || !e.target.validity.valid || e.target.value.length === 0) {
+            setPriceErr("Can't be zero or less")
+        } else {
+            setPriceErr(null)
+        }
+    }
+
+    const handleDescription = (e) => {
+        setDescription(e.target.value)
+        if (e.target.value.length > 999) {
+            setDescriptionErr("Can’t be longer than 999 symbols")
+        } else {
+            setDescriptionErr(null)
+        }
+    }
 
     const handleSubmit = (event) => {
         event.preventDefault()
         setOpen(false)
-        const apartmentData = {
-            id: apartment.id,
-            name,
-            rooms,
-            price,
-            description
+        !name ? setNameErr("Required") : null
+        !rooms ? setRoomsErr("Required") : null
+        !price ? setPriceErr("Required") : null
+        if (nameErr === null && roomsErr === null && priceErr === null && descriptionErr === null) {
+            const apartmentData = {
+                id: apartment.id,
+                name,
+                rooms,
+                price,
+                description
+            }
+            dispatch(updateApartment(apartmentData)).then(() => {dispatch(getAllApartments())})
         }
-        dispatch(updateApartment(apartmentData)).then(() => {dispatch(getAllApartments())})
     }
 
     return (
@@ -33,34 +78,39 @@ const EditForm = ({apartment, setOpen}) => {
                                    className="pl-2 block text-sm font-medium text-gray-700">Apartment name</label>
                             <input
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={handleName}
                                 type="text"
                                 id="name"
                                 placeholder="Ex. Comfortable flat"
                                 className="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                             />
+                            {nameErr ? <p className="text-sm text-red-500 mt-1">{nameErr}</p> : null}
                         </div>
                         <div>
                             <label htmlFor="rooms"
                                    className="pl-2 block text-sm font-medium text-gray-700">Number of rooms</label>
                             <input
                                 value={rooms}
-                                onChange={(e) => setRooms(e.target.value)}
+                                onChange={handleRooms}
                                 type="text"
+                                pattern="[0-9]*"
                                 id="rooms"
                                 placeholder="3"
                                 className="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm"/>
+                            {roomsErr ? <p className="text-sm text-red-500 mt-1">{roomsErr}</p> : null}
                         </div>
                         <div>
                             <label htmlFor="price"
                                    className="pl-2 block text-sm font-medium text-gray-700">Price</label>
                             <input
                                 value={price}
-                                onChange={(e) => setPrice(e.target.value)}
+                                onChange={handlePrice}
                                 type="text"
+                                pattern="[0-9]*"
                                 id="price"
                                 placeholder="500.00"
                                 className="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm"/>
+                            {priceErr ? <p className="text-sm text-red-500 mt-1">{priceErr}</p> : null}
                         </div>
                     </div>
                     <div>
@@ -68,12 +118,13 @@ const EditForm = ({apartment, setOpen}) => {
                                className="pl-2 pt-2 block text-sm font-medium text-gray-700">Description</label>
                         <textarea
                             value={description}
-                            onChange={(e) => setDescription(e.target.value)}
+                            onChange={handleDescription}
                             className="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                             rows={3}
                             id="description"
                             placeholder="Apartment description"
                         />
+                        {descriptionErr ? <p className="text-sm text-red-500 mt-1">{descriptionErr}</p> : null}
                     </div>
                 </div>
                 <div className="flex gap-2">

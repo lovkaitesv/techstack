@@ -12,10 +12,6 @@ const CreateForm = () => {
     const [roomsErr, setRoomsErr] = useState('')
     const [priceErr, setPriceErr] = useState('')
     const [descriptionErr, setDescriptionErr] = useState(null)
-    console.log(nameErr)
-    console.log(roomsErr)
-    console.log(priceErr)
-    console.log(descriptionErr)
 
     const handleName = (e) => {
         setName(e.target.value)
